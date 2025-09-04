@@ -1,5 +1,6 @@
 package com.example.appveterinaria;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -53,11 +55,61 @@ public class Registrar extends AppCompatActivity {
         btnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendDataWS();
+                //sendDataWS();
+                if (formIsReady()){
+                    showConfirmSave();
+                }else{
+                    edtNombre.requestFocus();
+                }
             }
         });
     }
 
+    private boolean editTextValidate(EditText editText, String message){
+        if (editText.getText().toString().trim().isEmpty()){
+            editText.setError(message);
+            editText.requestFocus();
+            return false;
+        }
+        return true;
+    }
+
+    private boolean editTextValidate(EditText editText){
+        if (editText.getText().toString().trim().isEmpty()){
+            editText.setError("Campo Obligatorio");
+            editText.requestFocus();
+            return false;
+        }
+        return true;
+    }
+
+    private boolean formIsReady(){
+        if (    !editTextValidate(edtNombre, "Nombre Requerido") ||
+                !editTextValidate(edtTipo) ||
+                !editTextValidate(edtRaza) ||
+                !editTextValidate(edtColor) ||
+                !editTextValidate(edtPeso) ||
+                !editTextValidate(edtGenero)){
+            return false;
+        }
+
+        return true;
+    }
+
+    private void showConfirmSave(){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Registro de Mascotas");
+        dialog.setMessage("¿Esta seguro de registrar a esta Mascota?");
+        dialog.setCancelable(false);
+        dialog.setNegativeButton("Cancelar", null);
+        dialog.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                sendDataWS();
+            }
+        });
+        dialog.show();
+    }
     private void sendDataWS(){
         requestQueue = Volley.newRequestQueue(this);
         JSONObject jsonObject = new JSONObject();
